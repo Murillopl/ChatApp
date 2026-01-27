@@ -32,15 +32,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         mBinding.textViewRegister.setOnClickListener {
-            mBinding.flipper.setInAnimation(this, android.R.anim.slide_in_left)
-            mBinding.flipper.setOutAnimation(this, android.R.anim.slide_out_right)
-            mBinding.flipper.showNext()
+            startNextAnimation()
         }
 
         mBinding.textViewSignIn.setOnClickListener {
-            mBinding.flipper.setInAnimation(this, R.anim.slide_in_right)
-            mBinding.flipper.setOutAnimation(this, R.anim.slide_out_left)
-            mBinding.flipper.showPrevious()
+            startPreviousAnimation()
+        }
+
+        mBinding.textViewSignUp.setOnClickListener {
+            startPreviousAnimation()
+        }
+
+        mBinding.textViewProfilePic.setOnClickListener {
+            startNextAnimation()
         }
     }
 
@@ -84,9 +88,21 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Account created", Toast.LENGTH_SHORT).show()
-                } else{
+                } else {
                     Toast.makeText(this, "Can't create account", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun startNextAnimation() {
+        mBinding.flipper.setInAnimation(this, android.R.anim.slide_in_left)
+        mBinding.flipper.setOutAnimation(this, android.R.anim.slide_out_right)
+        mBinding.flipper.showNext()
+    }
+
+    private fun startPreviousAnimation() {
+        mBinding.flipper.setInAnimation(this, R.anim.slide_in_right)
+        mBinding.flipper.setOutAnimation(this, R.anim.slide_out_left)
+        mBinding.flipper.showPrevious()
     }
 }
