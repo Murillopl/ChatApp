@@ -1,9 +1,15 @@
 package com.example.chatapp
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
@@ -12,6 +18,10 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityMainBinding
+
+    private lateinit var getResult: ActivityResultLauncher<Intent>
+
+    private val STORAGE_REQUEST_CODE = 55555
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +55,25 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.textViewProfilePic.setOnClickListener {
             startNextAnimation()
+        }
+
+        mBinding.profileImage.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(
+                    this@MainActivity,
+                    android.Manifest.permission.READ_MEDIA_IMAGES
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermission()
+            } else {
+                getImage()
+            }
+        }
+
+        getResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                mBinding.profileImage.setImageURI(it.data?.data)
+            }
         }
     }
 
@@ -104,5 +133,57 @@ class MainActivity : AppCompatActivity() {
         mBinding.flipper.setInAnimation(this, R.anim.slide_in_right)
         mBinding.flipper.setOutAnimation(this, R.anim.slide_out_left)
         mBinding.flipper.showPrevious()
+    }
+
+    private fun getImage() {
+        intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        getResult.launch(intent)
+    }
+
+    private fun requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this@MainActivity,
+                android.Manifest.permission.READ_MEDIA_IMAGES
+            )
+        ) {
+            AlertDialog.Builder(this@MainActivity)
+                .setPositiveButton(R.string.dialog_button_yes) { _, _ ->
+                    ActivityCompat.requestPermissions(
+                        this@MainActivity,
+                        arrayOf(
+                            android.Manifest.permission.READ_MEDIA_IMAGES
+                        ), STORAGE_REQUEST_CODE
+                    )
+                }.setNegativeButton(R.string.dialog_button_no) { dialog, _ ->
+                    dialog.cancel()
+                }.setTitle("Permission Needed")
+                .setMessage("This permission is needed to select a profile picture")
+                .show()
+        } else {
+            ActivityCompat.requestPermissions(
+                this@MainActivity,
+                arrayOf(
+                    android.Manifest.permission.READ_MEDIA_IMAGES
+                ), STORAGE_REQUEST_CODE
+            )
+
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String?>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+
+        if (requestCode == STORAGE_REQUEST_CODE && grantResults.size > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            getImage()
+        } else {
+            Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show()
+        }
     }
 }

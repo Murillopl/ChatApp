@@ -8,4 +8,6 @@
     <string name="text_view_register">Register</string>
     <string name="text_view_go_to_profile">Profile Photo</string>
     <string name="hint_username">Username</string>
+    <string name="dialog_button_yes">Yes</string>
+    <string name="dialog_button_no">No</string>
 </resources>
