@@ -136,31 +136,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun signIn() {
 
-        binding.progressBar1.visibility = View.VISIBLE
+        showProgressBar1()
 
         val email = binding.signInInputEmail.editText?.text.toString().trim()
         val password = binding.signInInputPassword.editText?.text.toString().trim()
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+            hideProgressBar1()
             return
         }
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                binding.progressBar1.visibility = View.INVISIBLE
+                hideProgressBar1()
                 sendToChat()
             }
             .addOnFailureListener {
                 Toast.makeText(this, it.message ?: "Login failed", Toast.LENGTH_LONG).show()
-                binding.progressBar1.visibility = View.INVISIBLE
+                hideProgressBar1()
             }
     }
 
     private fun createAccount() {
 
-        binding.progressBar2.visibility = View.VISIBLE
-
+        showProgressBar2()
         val email = binding.signUpInputEmail.text.toString().trim()
         val password = binding.signUpInputPassword.text.toString().trim()
         val confirmPassword = binding.confirmPassword.text.toString().trim()
@@ -168,16 +168,20 @@ class MainActivity : AppCompatActivity() {
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || userName.isEmpty()) {
             Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+            hideProgressBar2()
             return
         }
 
         if (password != confirmPassword) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            hideProgressBar2()
             return
         }
 
         if (password.length < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT)
+                .show()
+            hideProgressBar2()
             return
         }
 
@@ -190,15 +194,17 @@ class MainActivity : AppCompatActivity() {
                     usersRef.document(uid)
                         .set(user)
                         .addOnSuccessListener {
-                            binding.progressBar2.visibility = View.INVISIBLE
+                            hideProgressBar2()
                             sendToChat()
                         }
                         .addOnFailureListener {
                             Toast.makeText(this, "Firestore error", Toast.LENGTH_SHORT).show()
+                            hideProgressBar2()
                         }
 
                 } else {
-                    Toast.makeText(this, task.exception?.message ?: "Auth error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, task.exception?.message ?: "Auth error", Toast.LENGTH_LONG)
+                        .show()
                 }
             }
     }
@@ -222,5 +228,21 @@ class MainActivity : AppCompatActivity() {
         binding.flipper.setInAnimation(this, R.anim.slide_in_right)
         binding.flipper.setOutAnimation(this, R.anim.slide_out_left)
         binding.flipper.showPrevious()
+    }
+
+    private fun showProgressBar1() {
+        binding.progressBar1.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar1() {
+        binding.progressBar1.visibility = View.INVISIBLE
+    }
+
+    private fun showProgressBar2() {
+        binding.progressBar2.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar2() {
+        binding.progressBar2.visibility = View.INVISIBLE
     }
 }
