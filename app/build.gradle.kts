@@ -56,4 +56,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.mikhaellopez:circularimageview:4.3.1")
+    implementation("com.squareup.picasso:picasso:2.8")
 }
