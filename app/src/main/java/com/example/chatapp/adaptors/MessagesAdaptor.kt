@@ -38,8 +38,9 @@ class MessagesAdaptor(
         else if (holder is SenderViewHolder) {
             holder.textViewSender.text = message.message
 
-            // ✅ imagem fixa do drawable
             holder.senderProfileImage.setImageResource(R.drawable.ic_profile)
+
+            holder.textViewName.text = message.sender.userName
         }
     }
 
@@ -60,6 +61,7 @@ class MessagesAdaptor(
 
     inner class SenderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textViewSender: TextView = view.findViewById(R.id.sender_text_view)
+        val textViewName: TextView = view.findViewById(R.id.text_view_name)
         val senderProfileImage: CircularImageView =
             view.findViewById(R.id.sender_profile_image)
     }

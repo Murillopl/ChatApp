@@ -7,10 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.ChatActivity">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chat_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:title="Chat" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/message_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/chat_toolbar"
         android:layout_above="@id/view" />
 
     <View

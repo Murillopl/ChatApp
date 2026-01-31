@@ -1,7 +1,10 @@
 package com.example.chatapp.ui
 
 import MessagesAdaptor
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
@@ -10,9 +13,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatapp.MainActivity
 import com.example.chatapp.R
 import com.example.chatapp.model.ChatMessage
 import com.example.chatapp.model.User
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
@@ -33,11 +38,23 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_chat)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            val bottomInset = maxOf(systemBars.bottom, imeInsets.bottom)
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                bottomInset
+            )
             insets
         }
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.chat_toolbar)
+        setSupportActionBar(toolbar)
 
         messagesRecyclerView = findViewById(R.id.message_recycler_view)
         sendButton = findViewById(R.id.send_message_button)
@@ -109,9 +126,27 @@ class ChatActivity : AppCompatActivity() {
     private fun insertMessage() {
         val message = editTextMessage.text.toString().trim()
 
-        if ( message.isNotEmpty()) {
+        if (message.isNotEmpty()) {
             messagesRef.document()
                 .set(ChatMessage(currentUser, message))
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.chat_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.item_sign_out -> {
+                FirebaseAuth.getInstance().signOut()
+                Intent(this@ChatActivity, MainActivity::class.java).also {
+                    startActivity(it)
+                }
+                return true
+            }
+        }
+        return false
     }
 }
