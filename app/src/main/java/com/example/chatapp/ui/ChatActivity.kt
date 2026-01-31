@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class ChatActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
@@ -72,37 +73,39 @@ class ChatActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        messagesRef.addSnapshotListener { snapshots, error ->
-            error?.let {
-                return@addSnapshotListener
-            }
+        messagesRef.orderBy("timeStamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshots, error ->
+                error?.let {
+                    return@addSnapshotListener
+                }
 
-            snapshots?.let {
-                for (dc in it.documentChanges) {
-                    val oldIndex = dc.oldIndex
-                    val newIndex = dc.newIndex
+                snapshots?.let {
+                    for (dc in it.documentChanges) {
+                        val oldIndex = dc.oldIndex
+                        val newIndex = dc.newIndex
 
-                    when (dc.type) {
-                        DocumentChange.Type.ADDED -> {
-                            val snapshot = dc.document
-                            val message = snapshot.toObject(ChatMessage::class.java)
-                            messages.add(message)
-                            messagesAdapator.notifyItemInserted(newIndex)
+                        when (dc.type) {
+                            DocumentChange.Type.ADDED -> {
+                                val snapshot = dc.document
+                                val message = snapshot.toObject(ChatMessage::class.java)
+                                messages.add(newIndex, message)
+                                messagesAdapator.notifyItemInserted(newIndex)
+                                messagesRecyclerView.smoothScrollToPosition(messages.size - 1)
+                            }
+
+                            DocumentChange.Type.REMOVED -> {
+
+                            }
+
+                            DocumentChange.Type.MODIFIED -> {
+
+                            }
                         }
 
-                        DocumentChange.Type.REMOVED -> {
-
-                        }
-
-                        DocumentChange.Type.MODIFIED -> {
-
-                        }
                     }
 
                 }
-
             }
-        }
     }
 
     private fun initRecyclerView() {
@@ -128,7 +131,7 @@ class ChatActivity : AppCompatActivity() {
 
         if (message.isNotEmpty()) {
             messagesRef.document()
-                .set(ChatMessage(currentUser, message))
+                .set(ChatMessage(currentUser, message, null))
         }
     }
 
